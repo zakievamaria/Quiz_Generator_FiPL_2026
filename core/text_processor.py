@@ -1,60 +1,62 @@
 import re
 import nltk
-from typing import List, Tuple, Optional
-import pymorphy3
+from typing import List, Dict, Any, Optional
+import spacy
+nlp = spacy.load('fr_core_news_sm')
 
-# Скачиваем необходимые ресурсы NLTK
+# Download punkt if needed
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
     nltk.download('punkt')
-    nltk.download('punkt_tab')
-
 
 class TextProcessor:
-    """Класс для обработки и нормализации текста"""
+    """Process and normalize text for French"""
 
-    def __init__(self, language: str = 'russian'):
+    def __init__(self, language: str = 'french'):
         self.language = language
-        self.morph = pymorphy3.MorphAnalyzer() if language == 'russian' else None
+        if language == 'french':
+            try:
+                self.nlp = spacy.load('fr_core_news_sm')
+            except OSError:
+                # Download model if missing
+                spacy.cli.download('fr_core_news_sm')
+                self.nlp = spacy.load('fr_core_news_sm')
+        else:
+            self.nlp = None
 
     def tokenize_sentences(self, text: str) -> List[str]:
-        """Разбивает текст на предложения"""
-        # Используем NLTK для токенизации предложений
-        sentences = nltk.sent_tokenize(text, language='russian')
+        sentences = nltk.sent_tokenize(text, language=self.language)
         return [s.strip() for s in sentences if s.strip()]
 
     def tokenize_words(self, text: str) -> List[str]:
-        """Разбивает текст на слова"""
-        # Простая токенизация через регулярные выражения
-        words = re.findall(r'\b[а-яА-ЯёЁ]+\b', text)
-        return words
+        # Using NLTK's word tokenizer (handles contractions like "l'avion")
+        tokens = nltk.word_tokenize(text, language=self.language)
+        # Keep only alphabetic tokens (you might also want to keep apostrophe‑words)
+        return [t for t in tokens if t.isalpha()]
 
     def normalize_text(self, text: str) -> str:
-        """Базовая нормализация текста"""
-        # Приводим к нижнему регистру
         text = text.lower()
-        # Убираем лишние пробелы
         text = re.sub(r'\s+', ' ', text)
-        # Убираем спецсимволы (оставляем буквы, цифры и базовую пунктуацию)
-        text = re.sub(r'[^\w\s.,!?;:()-]', '', text)
+        # Keep French‑specific characters; adjust as needed
+        text = re.sub(r'[^\w\s.,!?;:()«»–—’]', '', text)
         return text.strip()
 
     def lemmatize_word(self, word: str) -> str:
-        """Лемматизация слова (приведение к нормальной форме)"""
-        if self.morph:
-            return self.morph.parse(word)[0].normal_form
+        """True lemmatization for French (using spaCy)"""
+        if self.nlp:
+            # Process the word with spaCy (a full document is more efficient,
+            # but for a single word this is fine)
+            doc = self.nlp(word)
+            return doc[0].lemma_
         return word
 
-    def get_sentences_with_metadata(self, text: str) -> List[dict]:
-        """Получает предложения с метаданными"""
+    def get_sentences_with_metadata(self, text: str) -> List[Dict[str, Any]]:
         sentences = self.tokenize_sentences(text)
         result = []
-
         for i, sentence in enumerate(sentences):
             words = self.tokenize_words(sentence)
             lemmas = [self.lemmatize_word(w) for w in words]
-
             result.append({
                 'id': i,
                 'text': sentence,
@@ -62,5 +64,4 @@ class TextProcessor:
                 'lemmas': lemmas,
                 'word_count': len(words)
             })
-
         return result
