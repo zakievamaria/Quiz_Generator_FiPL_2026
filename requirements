@@ -1,2 +1,6 @@
+flake8
+mypy
 nltk
-spacy
+pytest
+python-docx
+spacy-fr-core-news-sm
