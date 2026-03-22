@@ -51,17 +51,33 @@ class TextProcessor:
             return doc[0].lemma_
         return word
 
+
+    def get_pos_tag(self, word: str) -> str:
+        """Return coarse-grained POS tag for a single word (e.g., NOUN, VERB)."""
+        if self.nlp:
+            doc = self.nlp(word)
+            return doc[0].pos_
+        return ''
+
     def get_sentences_with_metadata(self, text: str) -> List[Dict[str, Any]]:
         sentences = self.tokenize_sentences(text)
         result = []
+
         for i, sentence in enumerate(sentences):
             words = self.tokenize_words(sentence)
-            lemmas = [self.lemmatize_word(w) for w in words]
+            # Build list of dicts: each dict maps lemma -> POS tag
+            tagged_lemmas = []
+            for w in words:
+                lemma = self.lemmatize_word(w)
+                pos = self.get_pos_tag(w)
+                tagged_lemmas.append({lemma: pos})
+
             result.append({
                 'id': i,
                 'text': sentence,
                 'words': words,
-                'lemmas': lemmas,
+                'tagged_lemmas': tagged_lemmas,   # new field, replaces plain lemmas list
                 'word_count': len(words)
             })
+
         return result

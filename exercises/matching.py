@@ -2,9 +2,8 @@ import random
 from typing import Dict, Any, List, Tuple
 from .base import BaseExercise
 
-
 class MatchingExercise(BaseExercise):
-    """Упражнение на соответствие - сопоставить слова/фразы с определениями"""
+    """Matching Exercise - сопоставить слова/фразы с определениями"""
 
     def __init__(self, exercise_id: str):
         super().__init__(exercise_id, "Соотнесите слова из левого столбца с их определениями из правого столбца")
