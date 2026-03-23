@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Карточки для изучения</title>
+    <title>Cover</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         html, body {
@@ -15,6 +15,14 @@
             flex-direction: column;
             background-color: #1a1e24;
             color: #fff;
+        }
+        .cover-container {
+            max-width: 42em;
+            width: 100%;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
         .nav-masthead .nav-link {
             color: rgba(255,255,255,.6);
@@ -33,413 +41,57 @@
             color: #fff;
             border-bottom-color: #fff;
         }
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-        .columns-container {
-            flex-grow: 1;
-            padding: 1rem 0 2rem;
-        }
-        .col-left, .col-center, .col-right {
-            height: 100%;
-        }
-        .panel {
-            background-color: rgba(255,255,255,0.05);
-            border-radius: 0.5rem;
-            padding: 1.25rem;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        .panel h5 {
-            margin-bottom: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            padding-bottom: 0.5rem;
-        }
-        /* Центральная колонка: распределение места */
-        .question-card {
-            background-color: #2c3038;
-            border-radius: 1rem;
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 0;
-            font-size: 1.5rem;
-            font-weight: 500;
-            flex: 2; /* занимает 2 части */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .answer-area {
-            background-color: #2c3038;
-            border-radius: 1rem;
-            padding: 1rem;
-            margin: 1rem 0;
-            flex: 1; /* занимает 1 часть */
-            overflow-y: auto;
-        }
-        /* Кнопка остаётся светлой всегда */
-        .btn-light, .btn-light:hover, .btn-light:focus, .btn-light:active {
-            background-color: #fff !important;
-            color: #1a1e24 !important;
+        .btn-light {
+            background-color: #fff;
+            color: #1a1e24;
             border: none;
+            padding: 0.75rem 2rem;
             font-weight: 600;
         }
-        .exercise-type-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .btn-light:hover {
+            background-color: #f0f0f0;
         }
-        .exercise-type-list li {
-            margin-bottom: 0.5rem;
-        }
-        .exercise-type-list .btn {
-            text-align: left;
-            width: 100%;
-            background-color: transparent;
-            border: 1px solid rgba(255,255,255,0.2);
+        footer a {
             color: #fff;
+            text-decoration: none;
         }
-        .exercise-type-list .btn.active {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
+        footer a:hover {
+            text-decoration: underline;
         }
-        .exercise-type-list .btn:hover {
-            background-color: rgba(13,110,253,0.2);
-        }
-        .matching-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 0.75rem;
-            align-items: center;
-        }
-        .matching-word {
-            width: 30%;
-            font-weight: bold;
-        }
-        .matching-select {
-            width: 70%;
-        }
-        .word-order-select {
-            width: auto;
-            min-width: 120px;
-            margin-right: 0.5rem;
-        }
-        .fill-input {
-            width: 150px;
-            display: inline-block;
-            margin: 0 0.25rem;
-        }
-        .preview {
-            background-color: #2c3038;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            flex-grow: 1;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.9rem;
-            white-space: pre-wrap;
-        }
-        @media (max-width: 768px) {
-            .columns-container .row {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            .col-left, .col-center, .col-right {
-                height: auto;
-                min-height: 300px;
-            }
-            .matching-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .matching-word, .matching-select {
-                width: 100%;
-            }
-        }
-        .is-valid {
-            border-color: #198754 !important;
-            background-color: rgba(25,135,84,0.1) !important;
-        }
-        .is-invalid {
-            border-color: #dc3545 !important;
-            background-color: rgba(220,53,69,0.1) !important;
-        }
-        .form-check-input.is-valid, .form-check-input.is-invalid {
-            border-width: 2px;
+        .lead {
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
-<body>
-    <header class="pt-3">
-        <div class="cover-container mx-auto px-3" style="max-width: 42em;">
+<body class="text-center">
+    <p></p>
+    <div class="cover-container">
+        <header class="mb-auto">
             <div>
-                <h3 class="float-md-start mb-0">Карточки для изучения языка</h3>
+                <h3 class="float-md-start mb-0">Cover</h3>
                 <nav class="nav nav-masthead justify-content-center float-md-end">
                     <a class="nav-link active" aria-current="page" href="#">Home</a>
-                    <a class="nav-link" href="#">About us</a>
+                    <a class="nav-link" href="#">Features</a>
+                    <a class="nav-link" href="#">Contact</a>
                 </nav>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <div class="main-content">
-        <div class="columns-container container-fluid h-100">
-            <div class="row h-100">
-                <!-- Левая колонка -->
-                <div class="col-md-3 col-left mb-3 mb-md-0">
-                    <div class="panel">
-                        <h5>Тип упражнения</h5>
-                        <ul class="exercise-type-list">
-                            <li><button class="btn exercise-type-btn active" data-type="truefalse">True / False</button></li>
-                            <li><button class="btn exercise-type-btn" data-type="matching">Matching</button></li>
-                            <li><button class="btn exercise-type-btn" data-type="wordorder">Word Order</button></li>
-                            <li><button class="btn exercise-type-btn" data-type="fillblanks">Fill blanks</button></li>
-                        </ul>
-                    </div>
-                </div>
+        <main class="px-3">
+            <h1 class="display-5 fw-normal">Cover your page.</h1>
+            <p class="lead">Cover is a one-page template for building simple and beautiful home pages.</p>
+            <p class="lead">Download, edit the text, and add your own fullscreen background photo to make it your own.</p>
+            <p class="lead">
+                <a href="#" class="btn btn-lg btn-light">Learn more</a>
+            </p>
+        </main>
 
-                <!-- Центральная колонка -->
-                <div class="col-md-6 col-center mb-3 mb-md-0">
-                    <div class="panel">
-                        <h5>Задание</h5>
-                        <div class="question-card" id="questionText"></div>
-                        <div class="answer-area" id="answerForm"></div>
-                        <button class="btn btn-light" id="showAnswerBtn">Посмотреть ответ</button>
-                    </div>
-                </div>
-
-                <!-- Правая колонка -->
-                <div class="col-md-3 col-right">
-                    <div class="panel">
-                        <h5>Загрузить текст</h5>
-                        <input type="file" id="fileInput" class="form-control file-input" accept=".txt">
-                        <h5 class="mt-3">Предпросмотр</h5>
-                        <div class="preview" id="previewArea"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <footer class="mt-auto text-white-50">
+            <p>Cover template for <a href="https://getbootstrap.com/" target="_blank">Bootstrap</a> by <a href="https://twitter.com/mdo" target="_blank">@mdo</a>.</p>
+        </footer>
     </div>
-
+    <p></p>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // ---------- Данные для упражнений ----------
-        const exercises = {
-            truefalse: {
-                question: "Я люблю кошек.",
-                correct: "true",
-                renderForm: () => `
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="tfAnswer" id="tfTrue" value="true">
-                            <label class="form-check-label" for="tfTrue">Правда</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="tfAnswer" id="tfFalse" value="false">
-                            <label class="form-check-label" for="tfFalse">Ложь</label>
-                        </div>
-                    </div>
-                `,
-                check: () => {
-                    const selected = document.querySelector('input[name="tfAnswer"]:checked');
-                    if (!selected) return { valid: false, message: "Выберите ответ" };
-                    const isCorrect = selected.value === exercises.truefalse.correct;
-                    const radio = selected;
-                    if (isCorrect) {
-                        radio.classList.add('is-valid');
-                        radio.classList.remove('is-invalid');
-                    } else {
-                        radio.classList.add('is-invalid');
-                        radio.classList.remove('is-valid');
-                    }
-                    return { valid: isCorrect, message: isCorrect ? "Верно!" : "Неверно" };
-                }
-            },
-            matching: {
-                question: "Соотнесите слово и его определение.",
-                correct: { "cat": "кошка", "dog": "собака", "sun": "солнце" },
-                options: ["кошка", "собака", "солнце"],
-                renderForm: () => {
-                    const words = Object.keys(exercises.matching.correct);
-                    const options = exercises.matching.options;
-                    let html = '';
-                    words.forEach(word => {
-                        html += `
-                            <div class="matching-row">
-                                <div class="matching-word">${word}</div>
-                                <select class="form-select matching-select" data-word="${word}">
-                                    <option value="">Выберите определение</option>
-                                    ${options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
-                                </select>
-                            </div>
-                        `;
-                    });
-                    return html;
-                },
-                check: () => {
-                    const selects = document.querySelectorAll('.matching-select');
-                    let allCorrect = true;
-                    selects.forEach(select => {
-                        const word = select.getAttribute('data-word');
-                        const selected = select.value;
-                        const correct = exercises.matching.correct[word];
-                        const isCorrect = selected === correct;
-                        if (!isCorrect) allCorrect = false;
-                        if (selected) {
-                            if (isCorrect) {
-                                select.classList.add('is-valid');
-                                select.classList.remove('is-invalid');
-                            } else {
-                                select.classList.add('is-invalid');
-                                select.classList.remove('is-valid');
-                            }
-                        } else {
-                            select.classList.remove('is-valid', 'is-invalid');
-                        }
-                    });
-                    return { valid: allCorrect, message: allCorrect ? "Всё верно!" : "Есть ошибки" };
-                }
-            },
-            wordorder: {
-                question: "Расположите слова в правильном порядке: люблю / я / кошек",
-                correct: ["я", "люблю", "кошек"],
-                words: ["я", "люблю", "кошек"],
-                renderForm: () => {
-                    let html = '<div class="d-flex flex-wrap gap-2 justify-content-center">';
-                    for (let i = 0; i < exercises.wordorder.words.length; i++) {
-                        html += `
-                            <select class="form-select word-order-select" data-position="${i}">
-                                <option value="">Выберите слово</option>
-                                ${exercises.wordorder.words.map(w => `<option value="${w}">${w}</option>`).join('')}
-                            </select>
-                        `;
-                    }
-                    html += '</div>';
-                    return html;
-                },
-                check: () => {
-                    const selects = document.querySelectorAll('.word-order-select');
-                    const userOrder = [];
-                    selects.forEach(select => userOrder.push(select.value));
-                    const correct = exercises.wordorder.correct;
-                    let allCorrect = userOrder.length === correct.length && userOrder.every((val, idx) => val === correct[idx]);
-                    selects.forEach((select, idx) => {
-                        if (select.value === correct[idx]) {
-                            select.classList.add('is-valid');
-                            select.classList.remove('is-invalid');
-                        } else {
-                            select.classList.add('is-invalid');
-                            select.classList.remove('is-valid');
-                            allCorrect = false;
-                        }
-                    });
-                    return { valid: allCorrect, message: allCorrect ? "Порядок верный!" : "Порядок неверный" };
-                }
-            },
-            fillblanks: {
-                question: "Вставьте пропущенные слова: 1. Я ___ кошек. 2. Он ___ домой.",
-                correct: ["люблю", "идет"],
-                renderForm: () => {
-                    let html = '<div class="mb-3">';
-                    for (let i = 0; i < exercises.fillblanks.correct.length; i++) {
-                        html += `
-                            <div class="mb-2">
-                                <label class="form-label">Пропуск ${i+1}:</label>
-                                <input type="text" class="form-control fill-input" data-blank="${i}" placeholder="Введите слово">
-                            </div>
-                        `;
-                    }
-                    html += '</div>';
-                    return html;
-                },
-                check: () => {
-                    const inputs = document.querySelectorAll('.fill-input');
-                    let allCorrect = true;
-                    inputs.forEach(input => {
-                        const idx = parseInt(input.getAttribute('data-blank'));
-                        const userValue = input.value.trim().toLowerCase();
-                        const correctValue = exercises.fillblanks.correct[idx].toLowerCase();
-                        const isCorrect = userValue === correctValue;
-                        if (!isCorrect) allCorrect = false;
-                        if (userValue) {
-                            if (isCorrect) {
-                                input.classList.add('is-valid');
-                                input.classList.remove('is-invalid');
-                            } else {
-                                input.classList.add('is-invalid');
-                                input.classList.remove('is-valid');
-                            }
-                        } else {
-                            input.classList.remove('is-valid', 'is-invalid');
-                        }
-                    });
-                    return { valid: allCorrect, message: allCorrect ? "Все ответы верны!" : "Есть ошибки" };
-                }
-            }
-        };
-
-        // ---------- Общие переменные ----------
-        let currentType = 'truefalse';
-        const questionDiv = document.getElementById('questionText');
-        const answerFormDiv = document.getElementById('answerForm');
-        const showAnswerBtn = document.getElementById('showAnswerBtn');
-
-        function updateExercise(type) {
-            currentType = type;
-            const ex = exercises[type];
-            questionDiv.textContent = ex.question;
-            answerFormDiv.innerHTML = ex.renderForm();
-            const feedback = document.querySelector('.check-feedback');
-            if (feedback) feedback.remove();
-        }
-
-        showAnswerBtn.addEventListener('click', () => {
-            const ex = exercises[currentType];
-            const result = ex.check();
-            let feedback = document.querySelector('.check-feedback');
-            if (!feedback) {
-                feedback = document.createElement('div');
-                feedback.className = 'check-feedback mt-2 text-center';
-                answerFormDiv.appendChild(feedback);
-            }
-            feedback.textContent = result.message;
-            feedback.className = `check-feedback mt-2 text-center ${result.valid ? 'text-success' : 'text-danger'}`;
-        });
-
-        const typeBtns = document.querySelectorAll('.exercise-type-btn');
-        typeBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                typeBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                updateExercise(this.getAttribute('data-type'));
-            });
-        });
-
-        const exampleText = `Это пример текста для генерации карточек.
-Можно использовать его для создания упражнений.
-Например, предложения: "Я люблю кошек", "Солнце светит ярко", "Python — отличный язык".`;
-        const previewArea = document.getElementById('previewArea');
-        previewArea.textContent = exampleText;
-
-        const fileInput = document.getElementById('fileInput');
-        fileInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewArea.textContent = e.target.result;
-                };
-                reader.readAsText(file);
-            } else {
-                previewArea.textContent = exampleText;
-            }
-        });
-
-        updateExercise(currentType);
-    </script>
 </body>
 </html>
