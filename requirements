@@ -3,4 +3,3 @@ mypy
 nltk
 pytest
 python-docx
-spacy-fr-core-news-sm
