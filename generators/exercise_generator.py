@@ -6,7 +6,7 @@ from core.document_loader import DocumentLoader
 from core.text_processor import TextProcessor
 from exercises.word_order import WordOrderExercise
 from exercises.fill_blanks import FillBlanksExercise
-from exercises.multiple_choice import MultipleChoiceExercise
+from exercises.synonyms import MultipleChoiceExercise
 from exercises.matching import MatchingExercise
 from exercises.true_false import TrueFalseExercise
 from formatters.docx_formatter import DocxFormatter
