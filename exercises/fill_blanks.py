@@ -1,82 +1,116 @@
 import random
 import re
-import numpy as np
-import spacy
-from typing import Dict, Any, List
+from typing import List, Dict, Any
 from exercises.base import BaseExercise
 from core.word_vectorizer import Word2VecAnalyzer
 
-
 class FillBlanksExercise(BaseExercise):
-    """"Exercise for filling in blanks"""
+    ALLOWED_POS = {'NOUN', 'VERB', 'ADJ'}
+    MIN_WORD_LENGTH = 5   # words longer than 4 characters
 
     def __init__(self, exercise_id: str):
-        super().__init__(exercise_id, "Fill in the blanks with appropriate words")
+        super().__init__(exercise_id, "Заполните пропуски подходящими словами")
         self.word_bank: List[str] = []
         self.answer: str = ""
         self.question: str = ""
-        self.analyzer: Word2VecAnalyzer = Word2VecAnalyzer()
+        self.analyzer: Word2VecAnalyzer = None
 
     def generate(self, sentences: List[Dict[str, Any]]) -> None:
-        """
-        Create a fill-in-the-blank exercise from a list of sentence dictionaries.
-
-        Steps:
-        1. Randomly pick a sentence.
-        2. Randomly pick a word from that sentence.
-        3. Replace the first occurrence of that word with "___".
-        4. Try to get up to 5 similar words (distractors) from the Word2Vec model.
-           If the model returns fewer than 5, fill the remaining slots with random
-           words from the same sentence (excluding the blank).
-        5. Store the exercise.
-        """
         if not sentences:
             raise ValueError("No sentences provided.")
-
         if self.analyzer is None:
-            raise ValueError(
-                "Word2VecAnalyzer not set. Please assign an instance to self.analyzer before calling generate()."
-            )
-        nlp = spacy.load('fr_core_news_sm')
+            raise ValueError("Word2VecAnalyzer not set.")
 
-        # 1. Randomly choose a sentence
-        chosen_sentence = random.choice(sentences)
+        max_attempts = 10
+        for attempt in range(max_attempts):
+            chosen_sentence = random.choice(sentences)
+            original_sentence = chosen_sentence['text']
+            words = chosen_sentence['words']
+            tagged_lemmas = chosen_sentence['tagged_lemmas']
+
+            # Filter indices: allowed POS and word length > 4
+            allowed_indices = []
+            for i, d in enumerate(tagged_lemmas):
+                pos = list(d.values())[0]
+                word = words[i]
+                if pos in self.ALLOWED_POS and len(word) >= self.MIN_WORD_LENGTH:
+                    allowed_indices.append(i)
+            if not allowed_indices:
+                continue
+
+            idx = random.choice(allowed_indices)
+            blank_word = words[idx]
+            blank_pos = list(tagged_lemmas[idx].values())[0]
+
+            # Try to get similar words (distractors) of same POS
+            try:
+                similar = self.analyzer.get_similar_words(blank_word, topn=5, pos=blank_pos)
+            except ValueError:
+                similar = []
+
+            # Remove blank word itself
+            similar = [w for w in similar if w != blank_word]
+
+            if len(similar) >= 2:
+                distractors = similar[:2]
+                word_bank = [blank_word] + distractors
+                random.shuffle(word_bank)
+
+                sentence_blank = re.sub(rf'\b{re.escape(blank_word)}\b', '___', original_sentence, count=1)
+
+                self.question = sentence_blank
+                self.answer = blank_word
+                self.word_bank = word_bank
+                return
+
+        # Fallback: use random words from the sentence (including the answer) to build the bank
+        print("Warning: Could not find enough similar words. Using fallback word bank from sentence.")
+        # Try once more to find a sentence with an allowed word of sufficient length
+        for _ in range(max_attempts):
+            chosen_sentence = random.choice(sentences)
+            words = chosen_sentence['words']
+            tagged_lemmas = chosen_sentence['tagged_lemmas']
+            allowed_indices = []
+            for i, d in enumerate(tagged_lemmas):
+                pos = list(d.values())[0]
+                word = words[i]
+                if pos in self.ALLOWED_POS and len(word) >= self.MIN_WORD_LENGTH:
+                    allowed_indices.append(i)
+            if allowed_indices:
+                idx = random.choice(allowed_indices)
+                blank_word = words[idx]
+                break
+        else:
+            # Ultimate fallback: any sentence, any word with length > 4 (if possible)
+            for _ in range(max_attempts):
+                chosen_sentence = random.choice(sentences)
+                words = chosen_sentence['words']
+                long_words = [w for w in words if len(w) >= self.MIN_WORD_LENGTH]
+                if long_words:
+                    blank_word = random.choice(long_words)
+                    break
+            else:
+                # If still no word, pick any word
+                blank_word = random.choice(words)
+
         original_sentence = chosen_sentence['text']
-        words = chosen_sentence['words']
-
-        if not words:
-            raise ValueError("Selected sentence contains no words.")
-
-        # 2. Randomly choose a word
-        blank_word = random.choice(words)
-        blank_lemma = nlp(blank_word)[0].lemma_
-
-        # 3. Replace first occurrence with "___"
         sentence_blank = re.sub(rf'\b{re.escape(blank_word)}\b', '___', original_sentence, count=1)
 
-        def generate(self, sentences: List[Dict[str, Any]]) -> None:
-            # ... existing code ...
-            # 4. Try to get similar words as distractors (now topn=3)
-            similar = []
-            try:
-                similar = self.analyzer.get_similar_words(blank_word, topn=3, pos=blank_pos)  # changed from 5
-            except ValueError:
-                pass
+        # Build word bank: include blank_word and two other unique words from the sentence
+        other_words = [w for w in chosen_sentence['words'] if w != blank_word]
+        other_words = list(dict.fromkeys(other_words))  # unique
+        if len(other_words) >= 2:
+            selected_others = random.sample(other_words, 2)
+            word_bank = [blank_word] + selected_others
+        else:
+            word_bank = [blank_word] + other_words
+            while len(word_bank) < 3:
+                word_bank.append(blank_word)  # pad with blank_word if needed
 
-            # Remove the blank word itself
-            other_words = [w for w in similar if w != blank_word]
-
-            # If we have fewer than 3 distractors, add random words from the sentence
-            if len(other_words) < 3:
-                candidates = [w for w in words if w != blank_word and len(w) > 4]
-                if candidates:
-                    needed = 3 - len(other_words)
-                    additional = random.sample(candidates, min(needed, len(candidates)))
-                    other_words.extend(additional)
-
-            self.question = sentence_blank
-            self.answer = blank_word
-            self.word_bank = other_words
+        random.shuffle(word_bank)
+        self.question = sentence_blank
+        self.answer = blank_word
+        self.word_bank = word_bank
 
     def validate_answer(self, user_answer: str) -> bool:
         """Проверяет, правильно ли заполнен пропуск"""
