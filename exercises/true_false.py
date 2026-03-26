@@ -1,10 +1,11 @@
-from typing import Any, Dict, List
-from base import BaseExercise
-import spacy
 import random
-from spacy.matcher import Matcher
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from typing import Any, Dict, List
 
+import spacy
+from spacy.matcher import Matcher
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+from exercises.base import BaseExercise
 
 nlp = spacy.load("fr_core_news_sm")
 tfs_tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-small")
