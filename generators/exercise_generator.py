@@ -6,7 +6,7 @@ from core.document_loader import DocumentLoader
 from core.text_processor import TextProcessor
 from exercises.word_order import WordOrderExercise
 from exercises.fill_blanks import FillBlanksExercise
-from exercises.multiple_choice import MultipleChoiceExercise
+from exercises.synonyms import MultipleChoiceExercise
 from exercises.matching import MatchingExercise
 from exercises.true_false import TrueFalseExercise
 from formatters.docx_formatter import DocxFormatter
@@ -36,13 +36,17 @@ class ExerciseGenerator:
 
     def load_texts(self, file_paths: List[str]) -> None:
         """Загружает тексты из файлов"""
-        for file_path in file_paths:
-            try:
-                text = DocumentLoader.load_text(file_path)
-                self.texts.append(text)
-                print(f"✓ Загружен файл: {file_path}")
-            except Exception as e:
-                print(f"✗ Ошибка загрузки {file_path}: {e}")
+        loader = DocumentLoader(file_paths)
+
+        try:
+            docs = loader.load()
+        except Exception as e:
+            print(f"✗ Ошибка загрузки файлов: {e}")
+            return
+
+        for doc in docs:
+            self.texts.append(doc['content'])
+            print(f"✓ Загружен файл: {doc['file_path']}")
 
         # Обрабатываем загруженные тексты
         self._process_texts()
@@ -76,7 +80,7 @@ class ExerciseGenerator:
                 context = {
                     'sentence': sentence_data['text'],
                     'words': sentence_data['words'],
-                    'lemmas': sentence_data['lemmas'],
+                    'lemmas': [list(d.keys())[0] for d in sentence_data['tagged_lemmas']],
                     'other_words': self.all_words
                 }
 
