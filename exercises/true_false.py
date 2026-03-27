@@ -1,5 +1,5 @@
 import random
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import spacy
 from spacy.matcher import Matcher
@@ -73,26 +73,29 @@ def find_markers_in_doc(doc: spacy.tokens.Doc, matcher: Matcher) -> List[Dict[st
         })
     return results
 
-def distort_span(sent_doc: spacy.tokens.Span, marker: Dict[str, Any]) -> str:
+def distort_span(sent_span: spacy.tokens.Span, marker: Dict[str, Any]) -> str:
     """
-    Replace one phrase in a sentence based on a marker and predefined rules.
+    Replace the marker text inside a sentence‑span.
 
     Args:
-        sent_doc (spacy.tokens.Span): The sentence as a spaCy Span.
-        marker (dict): Marker dictionary with label, text, and offsets.
+        sent_span (spacy.tokens.Span): Span corresponding to one sentence.
+        marker (dict): Marker with "start", "end" in token indices of the whole Doc.
 
     Returns:
-        str: Sentence with one fragment changed.
+        str: New sentence text with one fragment changed.
     """
     label = marker["label"]
     old_text = marker["text"]
-    start = marker["start"] - sent_doc.start
-    end = marker["end"] - sent_doc.start
+    span_start = marker["start"] - sent_span.start
+    span_end = marker["end"] - sent_span.start
+
     new_word = replacements.get(label, {}).get(old_text.lower(), "toujours")
-    left = sent_doc[:start].text
-    right = sent_doc[end:].text
+
+    left = sent_span[:span_start].text
+    right = sent_span[span_end:].text
     new_sent = left + " " + new_word + " " + right
     return new_sent.strip()
+
 
 def paraphrase(model, tokenizer, sentence: str, num_return_sequences=1) -> List[str]:
     """
@@ -137,10 +140,10 @@ class TrueFalseExercise(BaseExercise):
             exercise_id,
             "Определите, верны ли следующие утверждения (Vrai / Faux)"
         )
-        self.statements = []
-        self.question = None
-        self.answer = None
-        self.options = ["Vrai", "Faux"]
+        self.statements: List[Dict[str, Any]] = []
+        self.question: Optional[str] = None
+        self.answer: List[bool] = []
+        self.options: List[str] = ["Vrai", "Faux"]
 
     def generate(self, context: Dict[str, Any]) -> None:
         """
@@ -213,19 +216,21 @@ class TrueFalseExercise(BaseExercise):
             list[dict]: List of false statements with text, is_true, and original.
         """
         false_statements = []
+        if not sentences:
+            return false_statements
 
-        for sent in sentences:
-            doc = nlp(sent)
-            markers = [m for m in all_markers if m["sent_start"] == 0]
+        doc = nlp(" ".join(sentences))
+        for sent in doc.sents:
+            markers = [m for m in all_markers if m["sent_start"] == sent.start]
             if markers:
                 chosen_marker = random.choice(markers)
-                modified = distort_span(doc, chosen_marker)
+                sent_span = doc[sent.start: sent.end]
+                modified = distort_span(sent_span, chosen_marker)
                 false_statements.append({
                     "text": modified,
                     "is_true": False,
-                    "original": sent,
+                    "original": sent.text,
                 })
-
         return false_statements
 
     def _generate_statements(
