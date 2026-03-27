@@ -95,6 +95,15 @@ dependencies = [
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+packages = [
+  "core",
+  "generators",
+  "exercises",
+  "formatters",
+]
+
+
 [tool.black]
 line-length = 100
 target-version = ['py311']
@@ -112,9 +121,7 @@ src_paths = [
     "core",
     "exercises",
     "formatters",
-    "generators",
-    "web",
-    "Корпус французских текстов"
+    "generators"
 ]
 
 [tool.mypy]
