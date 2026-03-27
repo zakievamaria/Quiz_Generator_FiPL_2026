@@ -9,6 +9,10 @@ try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
     nltk.download('punkt')
+    nltk.download('wordnet')
+    nltk.download('omw-1.4')
+    nltk.download('punkt_tab')
+
 
 class TextProcessor:
     """Process and normalize text for French"""

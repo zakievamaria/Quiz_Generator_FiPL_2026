@@ -1,8 +1,9 @@
 import random
 import re
-from typing import Dict, Any, List
-from exercises.base import BaseExercise
+from typing import Any, Dict, List
+
 from core.word_vectorizer import Word2VecAnalyzer
+from exercises.base import BaseExercise
 
 
 class SynonymsExercise(BaseExercise):

@@ -1,5 +1,6 @@
 import random
-from typing import Dict, Any
+from typing import Any, Dict
+
 from exercises.base import BaseExercise
 
 

@@ -1,8 +1,10 @@
 import random
 import re
-from typing import List, Dict, Any
-from exercises.base import BaseExercise
+from typing import Any, Dict, List
+
 from core.word_vectorizer import Word2VecAnalyzer
+from exercises.base import BaseExercise
+
 
 class FillBlanksExercise(BaseExercise):
     ALLOWED_POS = {'NOUN', 'VERB', 'ADJ'}

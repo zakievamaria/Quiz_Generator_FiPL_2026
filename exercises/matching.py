@@ -1,6 +1,8 @@
 import random
-from typing import Dict, Any, List, Tuple
+from typing import Any, Dict, List, Tuple
+
 from .base import BaseExercise
+
 
 class MatchingExercise(BaseExercise):
     """Matching Exercise - сопоставить слова/фразы с определениями"""

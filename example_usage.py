@@ -22,6 +22,6 @@ print("=== Sentences with Metadata ===")
 for sent in sentences_metadata:
     print(f"Sentence {sent['id']}: {sent['text']}")
     print(f"  Words: {sent['words']}")
-    print(f"  Lemmas: {sent['lemmas']}")
+    print(f"  Lemmas: {sent['tagged_lemmas']}")
     print(f"  Word count: {sent['word_count']}\n")
 
