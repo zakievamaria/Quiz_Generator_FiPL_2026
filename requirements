@@ -1,8 +1,0 @@
-flake8
-mypy
-nltk
-pytest
-python-docx
-python-docx
-spacy-fr-core-news-sm
-flask

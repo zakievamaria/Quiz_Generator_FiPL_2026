@@ -1,5 +1,5 @@
-from core.document_loader import DocumentLoader
-from core.text_processor import TextProcessor
+from src.core import DocumentLoader
+from src.core import TextProcessor
 
 if __name__ == "__main__":
     # Create a loader with a list of files (replace with actual paths)
@@ -22,6 +22,6 @@ print("=== Sentences with Metadata ===")
 for sent in sentences_metadata:
     print(f"Sentence {sent['id']}: {sent['text']}")
     print(f"  Words: {sent['words']}")
-    print(f"  Lemmas: {sent['lemmas']}")
+    print(f"  Lemmas: {sent['tagged_lemmas']}")
     print(f"  Word count: {sent['word_count']}\n")
 

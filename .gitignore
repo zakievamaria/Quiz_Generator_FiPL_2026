@@ -1,0 +1,50 @@
+# Виртуальные окружения
+venv/
+.venv/
+env/
+venv.zip
+.venv.zip
+
+# Байт‑код Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*$py.class
+
+# Распределённые пакеты
+build/
+dist/
+*.egg-info/
+*.whl
+*.egg
+*.tar.gz
+*.zip
+
+# Логи и кэш
+*.log
+.coverage
+.cache/
+htmlcov/
+coverage.xml
+nosetests.xml
+
+# Локальные файлы и настройки
+*.env
+*.pid
+*.seed
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*.sublime-project
+*.sublime-workspace
+
+# Docker / CI
+.dockerignore
+.docker-compose.env

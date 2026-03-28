@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: 3.11
+
+jobs:
+  install-dependencies:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      # Опционально: кэш venv (если хочешь ускорить следующие job'ы)
+      - name: Store cache key info
+        run: echo "python-${{ env.PYTHON_VERSION }}" > python-version.txt
+
+  code-style:
+    name: Code Style (flake8)
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    needs: [install-dependencies]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python (reuse cache)
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          pip install flake8
+      - name: Run flake8
+        run: python -m flake8 . --max-line-length=88 --extend-ignore=E203
+
+  mypy-checks:
+    name: Type checks (mypy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    needs: [install-dependencies]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Run mypy
+        run: mypy . --ignore-missing-imports
+
+  unittests:
+    name: Unit tests (pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [install-dependencies]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest  # если нет в requirements.txt
+      - name: Run pytest
+        run: python -m pytest tests --maxfail=1 --disable-warnings -v
+
+  start:
+    name: Run start script
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    needs: [install-dependencies]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Run run_generator.py
+        run: python run_generator.py
