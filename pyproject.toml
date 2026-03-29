@@ -101,7 +101,6 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages]
 find = {where = ["src"]}
 
-
 [tool.black]
 line-length = 100
 target-version = ['py311']
@@ -126,7 +125,6 @@ src_paths = [
 python_version = "3.11"
 exclude = [
     "venv*",
-    "test.py",
     "tests/",
     "docs/"
 ]
@@ -157,10 +155,11 @@ ignore_missing_imports = true
 fail-under = 10.0
 jobs = 1
 py-version = "3.11"
-suggestion-mode = true
+exclude = ["tests/"]
 
 [tool.pylint.format]
 max-line-length = 100
+exclude = "tests/"
 
 [tool.logging]
 version = 1
