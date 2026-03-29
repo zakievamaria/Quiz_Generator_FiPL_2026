@@ -15,7 +15,7 @@ class FillBlanksExercise(BaseExercise):
         self.word_bank: List[str] = []
         self.answer: str = ""
         self.question: str = ""
-        self.analyzer: Word2VecAnalyzer = None
+        self.analyzer: Word2VecAnalyzer = Word2VecAnalyzer()
 
     def generate(self, sentences: List[Dict[str, Any]]) -> None:
         if not sentences:
@@ -115,5 +115,5 @@ class FillBlanksExercise(BaseExercise):
         self.word_bank = word_bank
 
     def validate_answer(self, user_answer: str) -> bool:
-        """Проверяет, правильно ли заполнен пропуск"""
-        return user_answer.lower().strip() == self.answer.lower()
+        """Реализация абстрактного метода"""
+        return user_answer.strip().lower() == self.answer.strip().lower()
