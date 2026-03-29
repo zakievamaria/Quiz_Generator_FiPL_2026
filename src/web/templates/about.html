@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О проекте</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        html, body { height: 100%; margin: 0; }
+        body {
+            display: flex;
+            flex-direction: column;
+            background-color: #1a1e24;
+            color: #fff;
+        }
+        .nav-masthead .nav-link {
+            color: rgba(255,255,255,.6);
+            border-bottom: 0.15rem solid transparent;
+            padding: 0.25rem 0;
+            margin-left: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: border-color 0.2s;
+        }
+        .nav-masthead .nav-link:hover {
+            color: rgba(255,255,255,.6);
+            border-bottom-color: rgba(255,255,255,.6);
+        }
+        .nav-masthead .active {
+            color: #fff;
+            border-bottom-color: #fff;
+        }
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .about-card {
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .team-member {
+            margin-bottom: 0.5rem;
+        }
+        .team-member a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        .team-member a:hover {
+            text-decoration: underline;
+        }
+        .thankyou-img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header class="pt-3">
+        <div class="cover-container mx-auto px-3" style="max-width: 42em;">
+            <div>
+                <h3 class="float-md-start mb-0">Quiz Generator</h3>
+                <nav class="nav nav-masthead justify-content-center float-md-end">
+                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link active" href="/about">About us</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="about-card">
+            <p>Спасибо, что пользуетесь нашим генератором карточек для изучения языка!</p>
+            <p>Над проектом работали (*в скобках указан github):<br>
+            Абдеева Амина (minabdeyeva) - проджект менеджер, упражнения (multiple choice, fill blanks)<br>
+            Богданова Валерия (lerabogdanova) - веб разработка, польз. документация и архитектура<br>
+            Закиева Мария (zakievamaria) - упражнения (true/false), тесты<br>
+            Крапивцева Анна (annakrapivtseva) - упражнения (matching), тех. документация, корпус текстов</p>
+            <p>Папка проекта на github: <a href="https://github.com/minabdeyeva/Quiz_Generator_FiPL_2026" target="_blank">https://github.com/minabdeyeva/Quiz_Generator_FiPL_2026</a><br>
+            Пользовательская документация: <a href="https://docs.google.com/document/d/1eMpG6XLK1S3i2M4jC9id6C7OX4SJ97JAPDrdL08j-sk/edit?usp=sharing" target="_blank">https://docs.google.com/document/d/1eMpG6XLK1S3i2M4jC9id6C7OX4SJ97JAPDrdL08j-sk/edit?usp=sharing</a></p>
+            <img src="{{ url_for('static', filename='images/thank_you.png') }}" alt="Thank you in many languages" class="thankyou-img">
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
