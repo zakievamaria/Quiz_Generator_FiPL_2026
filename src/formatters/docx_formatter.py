@@ -9,7 +9,8 @@ class DocxFormatter:
     """Класс для форматирования документов в формате docx"""
 
     def __init__(self) -> None:
-        self.document: Optional[Document] = None
+        # `Document` from docx is a factory, not a class type for mypy.
+        self.document: Optional[Any] = None
 
     def save_exercises(self, exercises: List[Any], filename: str) -> None:
         """Сохраняет упражнения в docx файл"""
