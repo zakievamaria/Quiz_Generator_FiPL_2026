@@ -1,21 +1,22 @@
+from __future__ import annotations
+
 import random
 import re
 import sys
 from pathlib import Path
+from typing import Any, Dict, List, Tuple, Union
 
-from flask import Flask, jsonify, render_template, request, session
-
+from flask import Flask, Response, jsonify, render_template, request, session
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(PROJECT_ROOT))
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.core.text_processor import TextProcessor
 from src.core.word_vectorizer import Word2VecAnalyzer
 from src.exercises.fill_blanks import FillBlanksExercise
 from src.exercises.synonyms import SynonymsExercise
-#from src.exercises.true_false import TrueFalseExercise
 from src.exercises.word_order import WordOrderExercise
-
 
 app = Flask(__name__)
 app.secret_key = 'quiz-generator-web-secret'
@@ -23,7 +24,7 @@ text_processor = TextProcessor(language='french')
 strong_pattern = re.compile(r'\*\*(.+?)\*\*')
 
 
-def load_default_text():
+def load_default_text() -> str:
     path = PROJECT_ROOT / 'example1.txt'
     if path.exists():
         return path.read_text(encoding='utf-8').strip()
@@ -40,25 +41,25 @@ DEFAULT_PREVIEW_TEXT = load_default_text()
 
 # -------------------- Подготовка текста --------------------
 
-def get_text(raw_text):
+def get_text(raw_text: Any) -> str:
     text = (raw_text or '').strip()
     if text:
         return text
     return session.get('current_text', '').strip() or DEFAULT_PREVIEW_TEXT
 
 
-def get_sentences(text):
+def get_sentences(text: str) -> List[Dict[str, Any]]:
     return text_processor.get_sentences_with_metadata(text)
 
 
-def get_all_words(sentences):
-    words = []
+def get_all_words(sentences: List[Dict[str, Any]]) -> List[str]:
+    words: List[str] = []
     for sentence in sentences:
         words.extend(sentence['words'])
     return words
 
 
-def get_context(sentence, all_words):
+def get_context(sentence: Dict[str, Any], all_words: List[str]) -> Dict[str, Any]:
     return {
         'id': sentence['id'],
         'text': sentence['text'],
@@ -72,21 +73,32 @@ def get_context(sentence, all_words):
     }
 
 
-def pick_sentence(sentences, min_words=4, max_words=18):
+def pick_sentence(
+    sentences: List[Dict[str, Any]],
+    min_words: int = 4,
+    max_words: int = 18,
+) -> Dict[str, Any]:
     suitable = [s for s in sentences if min_words <= len(s['words']) <= max_words]
     return random.choice(suitable or sentences)
 
 
-def build_analyzer(sentences):
+def build_analyzer(sentences: List[Dict[str, Any]]) -> Word2VecAnalyzer:
     analyzer = Word2VecAnalyzer()
-    analyzer.train_on_texts([sentence['words'] for sentence in sentences], vector_size=50)
+    analyzer.train_on_texts(
+        [sentence['words'] for sentence in sentences],
+        vector_size=50,
+    )
     return analyzer
 
 
-def get_random_words(words, excluded_words, count=2):
+def get_random_words(
+    words: List[str],
+    excluded_words: List[str],
+    count: int = 2,
+) -> List[str]:
     excluded = {word.lower() for word in excluded_words}
-    unique_words = []
-    seen = set()
+    unique_words: List[str] = []
+    seen: set[str] = set()
 
     for word in words:
         lowered = word.lower()
@@ -99,14 +111,15 @@ def get_random_words(words, excluded_words, count=2):
     return unique_words[:count]
 
 
-def underline_word(text):
+def underline_word(text: str) -> str:
     return strong_pattern.sub(r'<u>\1</u>', text)
 
 
 # -------------------- Генерация карточек --------------------
 
-def generate_true_false_card(text):
+def generate_true_false_card(text: str) -> Dict[str, Any]:
     from src.exercises.true_false import TrueFalseExercise
+
     sentences = get_sentences(text)
     all_words = get_all_words(sentences)
     exercise = TrueFalseExercise('true_false_web')
@@ -122,7 +135,7 @@ def generate_true_false_card(text):
     }
 
 
-def generate_matching_card(text):
+def generate_matching_card(text: str) -> Dict[str, Any]:
     return {
         'id': 'matching_web',
         'type': 'matching',
@@ -132,7 +145,7 @@ def generate_matching_card(text):
     }
 
 
-def generate_word_order_card(text):
+def generate_word_order_card(text: str) -> Dict[str, Any]:
     sentences = get_sentences(text)
     all_words = get_all_words(sentences)
     sentence = pick_sentence(sentences, 4, 9)
@@ -153,15 +166,15 @@ def generate_word_order_card(text):
     }
 
 
-def generate_fill_blanks_card(text):
+def generate_fill_blanks_card(text: str) -> Dict[str, Any]:
     sentences = get_sentences(text)
     all_words = get_all_words(sentences)
     analyzer = build_analyzer(sentences)
     pool = [s for s in sentences if 4 <= len(s['words']) <= 14]
     random.shuffle(pool)
 
-    blanks = []
-    lines = []
+    blanks: List[Dict[str, Any]] = []
+    lines: List[str] = []
 
     for sentence in pool:
         if len(blanks) == 2:
@@ -191,7 +204,7 @@ def generate_fill_blanks_card(text):
     }
 
 
-def generate_multiple_choice_card(text):
+def generate_multiple_choice_card(text: str) -> Dict[str, Any]:
     sentences = get_sentences(text)
     all_words = get_all_words(sentences)
     sentence = pick_sentence(sentences, 4, 16)
@@ -210,7 +223,7 @@ def generate_multiple_choice_card(text):
     }
 
 
-def generate_card_by_type(exercise_type, text):
+def generate_card_by_type(exercise_type: str, text: str) -> Dict[str, Any]:
     if exercise_type == 'truefalse':
         return generate_true_false_card(text)
     if exercise_type == 'matching':
@@ -225,7 +238,11 @@ def generate_card_by_type(exercise_type, text):
 
 
 # -------------------- Проверка ответов --------------------
-def validate_true_false(exercise, user_answer):
+
+def validate_true_false(
+    exercise: Dict[str, Any],
+    user_answer: Any,
+) -> Dict[str, Any]:
     correct_answer = exercise.get('answer')
     is_correct = str(user_answer).lower() == str(correct_answer).lower()
 
@@ -235,9 +252,12 @@ def validate_true_false(exercise, user_answer):
     }
 
 
-def validate_matching(exercise, user_answer):
+def validate_matching(
+    exercise: Dict[str, Any],
+    user_answer: Any,
+) -> Dict[str, Any]:
     user_answer = user_answer or {}
-    results = []
+    results: List[Dict[str, Any]] = []
     is_correct = True
 
     for pair in exercise.get('pairs', []):
@@ -262,11 +282,14 @@ def validate_matching(exercise, user_answer):
     }
 
 
-def validate_word_order(exercise, user_answer):
+def validate_word_order(
+    exercise: Dict[str, Any],
+    user_answer: Any,
+) -> Dict[str, Any]:
     expected_answer = exercise.get('answer', [])
     user_answer = user_answer or []
 
-    results = []
+    results: List[Dict[str, Any]] = []
     is_correct = True
 
     for index, expected_word in enumerate(expected_answer):
@@ -292,9 +315,12 @@ def validate_word_order(exercise, user_answer):
     }
 
 
-def validate_fill_blanks(exercise, user_answer):
+def validate_fill_blanks(
+    exercise: Dict[str, Any],
+    user_answer: Any,
+) -> Dict[str, Any]:
     user_answer = user_answer or {}
-    results = []
+    results: List[Dict[str, Any]] = []
     is_correct = True
 
     for blank in exercise.get('blanks', []):
@@ -319,7 +345,10 @@ def validate_fill_blanks(exercise, user_answer):
     }
 
 
-def validate_multiple_choice(exercise, user_answer):
+def validate_multiple_choice(
+    exercise: Dict[str, Any],
+    user_answer: Any,
+) -> Dict[str, Any]:
     correct_answer = exercise.get('answer')
     is_correct = user_answer == correct_answer
 
@@ -329,7 +358,10 @@ def validate_multiple_choice(exercise, user_answer):
     }
 
 
-def validate_current_exercise(exercise, user_answer):
+def validate_current_exercise(
+    exercise: Dict[str, Any],
+    user_answer: Any,
+) -> Dict[str, Any]:
     exercise_type = exercise.get('type')
 
     if exercise_type == 'truefalse':
@@ -351,18 +383,19 @@ def validate_current_exercise(exercise, user_answer):
 
 
 # -------------------- Маршруты --------------------
+
 @app.route('/')
-def index():
+def index() -> str:
     return render_template('index.html', default_preview_text=DEFAULT_PREVIEW_TEXT)
 
 
 @app.route('/about')
-def about():
+def about() -> str:
     return render_template('about.html')
 
 
 @app.route('/api/generate', methods=['POST'])
-def generate_exercise():
+def generate_exercise() -> Union[Response, Tuple[Response, int]]:
     data = request.get_json(silent=True) or {}
     exercise_type = data.get('exercise_type', 'truefalse')
     text = get_text(data.get('text'))
@@ -384,7 +417,7 @@ def generate_exercise():
 
 
 @app.route('/api/validate', methods=['POST'])
-def validate_answer():
+def validate_answer() -> Union[Response, Tuple[Response, int]]:
     data = request.get_json(silent=True) or {}
     user_answer = data.get('user_answer')
     exercise = session.get('current_exercise')

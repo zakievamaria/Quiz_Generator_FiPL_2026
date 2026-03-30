@@ -1,4 +1,3 @@
-import os
 import pytest
 
 from src.core.document_loader import DocumentLoader
