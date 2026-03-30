@@ -3,7 +3,7 @@ The module creates True-False Statements.
 """
 
 import random
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 import spacy
 from spacy.matcher import Matcher
@@ -99,7 +99,8 @@ def distort_span(sent_span: spacy.tokens.Span, marker: Dict[str, Any]) -> str:
 
 
 def paraphrase(model: Any, tokenizer: Any, sentence: str) -> str:
-    input_text = f"Reformule la phrase suivante en français sans ajouter ni supprimer d'information : {sentence}"
+    input_text = f"Reformule la phrase suivante en français sans ajouter ni supprimer \
+    d'information : {sentence}"
 
     inputs = cast(Dict[str, Any], tokenizer(
         input_text,
