@@ -24,7 +24,7 @@ class DocumentLoader:
         self.validate_file_paths()
 
     def validate_file_paths(self) -> None:
-        """Check that there are 1–10 files, that each exists, and that the extension is .txt or .docx."""
+        """Check file count (1–10), existence, and .txt/.docx extensions."""
         if not (1 <= len(self.file_paths) <= 10):
             raise ValueError("Number of files must be between 1 and 10 inclusive.")
 
@@ -34,7 +34,8 @@ class DocumentLoader:
 
             ext = Path(path).suffix.lower()
             if ext not in ('.txt', '.docx'):
-                raise ValueError(f"Unsupported file format: {ext}. Only .txt and .docx are allowed.")
+                msg = f"Unsupported file format: {ext}. Only .txt and .docx."
+                raise ValueError(msg)
 
     def load(self) -> List[Dict]:
         """

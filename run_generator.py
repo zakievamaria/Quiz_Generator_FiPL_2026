@@ -1,4 +1,4 @@
-from src.generators.exercise_generator import ExerciseGenerator
+from src.generators import ExerciseGenerator
 
 if __name__ == "__main__":
     # 1. Создаем генератор

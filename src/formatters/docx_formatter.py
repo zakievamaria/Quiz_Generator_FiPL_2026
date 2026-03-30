@@ -1,14 +1,16 @@
-from typing import List, Any
+from typing import Any, List, Optional
+
 from docx import Document
-from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.text.paragraph import Paragraph
 
 
 class DocxFormatter:
     """Класс для форматирования документов в формате docx"""
 
-    def __init__(self):
-        self.document = None
+    def __init__(self) -> None:
+        # `Document` from docx is a factory, not a class type for mypy.
+        self.document: Optional[Any] = None
 
     def save_exercises(self, exercises: List[Any], filename: str) -> None:
         """Сохраняет упражнения в docx файл"""
@@ -71,7 +73,9 @@ class DocxFormatter:
         for i, ex in enumerate(exercises, 1):
             # Ответ на упражнение
             p = self.document.add_paragraph()
-            p.add_run(f"Упражнение {i} ({self._get_type_name(ex.__class__.__name__)}): ").bold = True
+            type_name = self._get_type_name(ex.__class__.__name__)
+            label = f"Упражнение {i} ({type_name}): "
+            p.add_run(label).bold = True
 
             # Форматируем ответ в зависимости от типа упражнения
             if ex.__class__.__name__ == 'MatchingExercise':
@@ -82,13 +86,15 @@ class DocxFormatter:
                 p.add_run(str(ex.answer))
 
             # Добавляем пояснения для TrueFalseExercise
-            if ex.__class__.__name__ == 'TrueFalseExercise' and hasattr(ex, 'get_explanations'):
+            is_tf = ex.__class__.__name__ == 'TrueFalseExercise'
+            if is_tf and hasattr(ex, 'get_explanations'):
                 explanations = ex.get_explanations()
                 if explanations:
                     p = self.document.add_paragraph()
                     p.add_run("Пояснения:").bold = True
                     for j, explanation in enumerate(explanations, 1):
-                        self.document.add_paragraph(f"{j}. {explanation}", style='List Bullet')
+                        bullet = f"{j}. {explanation}"
+                        self.document.add_paragraph(bullet, style='List Bullet')
 
             # Разделитель между упражнениями
             self.document.add_paragraph()
@@ -106,7 +112,7 @@ class DocxFormatter:
         }
         return names.get(class_name, class_name)
 
-    def _format_matching_exercise(self, exercise) -> None:
+    def _format_matching_exercise(self, exercise: Any) -> None:
         """Форматирует упражнение на соответствие с таблицей"""
         # Создаем таблицу для левого столбца
         if hasattr(exercise, 'left_column') and exercise.left_column:
@@ -131,13 +137,16 @@ class DocxFormatter:
             p.add_run("Найдите соответствия среди определений:").bold = True
 
             for idx, definition in enumerate(exercise.right_column, 1):
-                self.document.add_paragraph(f"{chr(64 + idx)}. {definition}", style='List Bullet')
+                letter = chr(64 + idx)
+                line = f"{letter}. {definition}"
+                self.document.add_paragraph(line, style='List Bullet')
 
         # Добавляем инструкцию
         self.document.add_paragraph()
-        self.document.add_paragraph("Запишите соответствия в формате: 1-А, 2-В и т.д.")
+        hint = "Запишите соответствия в формате: 1-А, 2-В и т.д."
+        self.document.add_paragraph(hint)
 
-    def _format_truefalse_exercise(self, exercise) -> None:
+    def _format_truefalse_exercise(self, exercise: Any) -> None:
         """Форматирует упражнение Верно/Неверно с таблицей"""
         if hasattr(exercise, 'statements') and exercise.statements:
             # Создаем таблицу для утверждений
@@ -157,17 +166,26 @@ class DocxFormatter:
                 row_cells[1].text = stmt['text']
                 row_cells[2].text = "_____"
 
-    def _format_matching_answer_inline(self, exercise, paragraph) -> None:
+    def _format_matching_answer_inline(
+        self,
+        exercise: Any,
+        paragraph: Paragraph,
+    ) -> None:
         """Форматирует ответ для matching упражнения в одну строку"""
         if hasattr(exercise, 'pairs'):
             paragraph.add_run("\n")
             for k, v in exercise.pairs.items():
                 paragraph.add_run(f"{k} → {v}\n")
 
-    def _format_truefalse_answer(self, exercise, paragraph) -> None:
+    def _format_truefalse_answer(
+        self,
+        exercise: Any,
+        paragraph: Paragraph,
+    ) -> None:
         """Форматирует ответ для true/false упражнения"""
         if hasattr(exercise, 'statements') and exercise.statements:
             paragraph.add_run("\n")
             for idx, stmt in enumerate(exercise.statements, 1):
                 answer = "Верно" if stmt['is_true'] else "Неверно"
-                paragraph.add_run(f"{idx}. {answer}\n")
+                line = f"{idx}. {answer}\n"
+                paragraph.add_run(line)

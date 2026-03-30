@@ -1,7 +1,10 @@
 import re
 import nltk
 from typing import List, Dict, Any, Optional
+
 import spacy
+from spacy.language import Language
+
 nlp = spacy.load('fr_core_news_sm')
 
 # Download punkt if needed
@@ -19,6 +22,7 @@ class TextProcessor:
 
     def __init__(self, language: str = 'french'):
         self.language = language
+        self.nlp: Optional[Language] = None
         if language == 'french':
             try:
                 self.nlp = spacy.load('fr_core_news_sm')
@@ -26,8 +30,6 @@ class TextProcessor:
                 # Download model if missing
                 spacy.cli.download('fr_core_news_sm')
                 self.nlp = spacy.load('fr_core_news_sm')
-        else:
-            self.nlp = None
 
     def tokenize_sentences(self, text: str) -> List[str]:
         sentences = nltk.sent_tokenize(text, language=self.language)
@@ -55,7 +57,6 @@ class TextProcessor:
             return doc[0].lemma_
         return word
 
-
     def get_pos_tag(self, word: str) -> str:
         """Return coarse-grained POS tag for a single word (e.g., NOUN, VERB)."""
         if self.nlp:
@@ -80,7 +81,8 @@ class TextProcessor:
                 'id': i,
                 'text': sentence,
                 'words': words,
-                'tagged_lemmas': tagged_lemmas,   # new field, replaces plain lemmas list
+                # new field, replaces plain lemmas list
+                'tagged_lemmas': tagged_lemmas,
                 'word_count': len(words)
             })
 

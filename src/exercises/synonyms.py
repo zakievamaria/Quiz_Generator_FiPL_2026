@@ -1,6 +1,6 @@
 import random
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple, Union
 
 from src.core.word_vectorizer import Word2VecAnalyzer
 from src.exercises.base import BaseExercise
@@ -10,86 +10,157 @@ class SynonymsExercise(BaseExercise):
     """Exercise where user picks a synonym of a highlighted word."""
 
     ALLOWED_POS = {'NOUN', 'VERB', 'ADJ'}
+    MIN_WORD_LENGTH = 4
 
     def __init__(self, exercise_id: str):
         super().__init__(exercise_id, "Выберите синоним к выделенному слову")
         self.word_bank: List[str] = []
         self.answer: str = ""
         self.question: str = ""
-        self.analyzer: Word2VecAnalyzer = None
+        self.analyzer: Word2VecAnalyzer = Word2VecAnalyzer()
 
-    def generate(self, sentences: List[Dict[str, Any]]) -> None:
-        """
-        Generate a synonym exercise from a list of sentence dictionaries.
+    def set_analyzer(self, analyzer: Word2VecAnalyzer) -> None:
+        self.analyzer = analyzer
 
-        Steps:
-        1. Filter sentences that contain at least one noun/verb/adjective.
-        2. Pick a random such sentence and a random word of the allowed POS.
-        3. Highlight that word in the sentence (surround with **).
-        4. Get up to 5 similar words (potential synonyms) using Word2Vec.
-        5. Select the most similar as the correct answer, and up to 2 others as distractors.
-        6. Build a shuffled word bank and store the exercise.
+    def _parse_tagged_item(
+        self,
+        item: Union[Dict, Tuple, List, str],
+    ) -> Tuple[str, str]:
         """
-        if not sentences:
-            raise ValueError("No sentences provided.")
+        Универсальный парсер для разных форматов tagged_lemmas.
+        Возвращает кортеж (слово, POS).
+        """
+        if isinstance(item, dict):
+            word = list(item.keys())[0]
+            pos = item[word]
+        elif isinstance(item, (tuple, list)) and len(item) >= 2:
+            word = item[0]
+            pos = item[1]
+        elif isinstance(item, str):
+            word = item
+            pos = 'UNKNOWN'
+        else:
+            word = str(item)
+            pos = 'UNKNOWN'
+
+        return word, pos
+
+    def generate(self, context: Dict[str, Any]) -> None:
+        """
+        Generate a synonym exercise from context dictionary.
+        """
         if self.analyzer is None:
             raise ValueError("Word2VecAnalyzer not set.")
 
-        # Filter sentences that contain at least one word of allowed POS
-        eligible_sentences = []
-        for sent in sentences:
-            for item in sent['tagged_lemmas']:
-                pos = list(item.values())[0]
-                if pos in self.ALLOWED_POS:
-                    eligible_sentences.append(sent)
-                    break
-        if not eligible_sentences:
-            raise ValueError("No sentences with nouns, verbs, or adjectives found.")
+        # Получаем данные из контекста
+        tagged_lemmas = context.get('tagged_lemmas', [])
+        words = context.get('words', [])
+        original_sentence = context.get('sentence', '')
 
-        # Randomly choose a sentence
-        chosen_sentence = random.choice(eligible_sentences)
-        original_sentence = chosen_sentence['text']
-        tagged_lemmas = chosen_sentence['tagged_lemmas']
-        words = chosen_sentence['words']
+        if not tagged_lemmas or not words:
+            raise ValueError("Нет данных для генерации упражнения")
 
-        # Collect indices where POS is allowed
+        # Парсим tagged_lemmas в универсальный формат
+        parsed_items = [self._parse_tagged_item(item) for item in tagged_lemmas]
+
+        # Фильтруем слова с разрешёнными частями речи
         allowed_indices = [
-            i for i, item in enumerate(tagged_lemmas)
-            if list(item.values())[0] in self.ALLOWED_POS
+            i for i, (word, pos) in enumerate(parsed_items)
+            if pos in self.ALLOWED_POS and len(word) >= self.MIN_WORD_LENGTH
         ]
+
+        if not allowed_indices:
+            # Fallback: берём любое длинное слово
+            allowed_indices = [
+                i for i, word in enumerate(words)
+                if len(word) >= self.MIN_WORD_LENGTH
+            ]
+
+        if not allowed_indices:
+            raise ValueError("Нет подходящих слов для упражнения")
+
+        # Выбираем случайное слово
         idx = random.choice(allowed_indices)
         target_word = words[idx]
-        target_pos = list(tagged_lemmas[idx].values())[0]
+        target_pos = parsed_items[idx][1]
 
-        # Highlight the word in the sentence
+        # Выделяем слово в предложении
         highlighted_sentence = re.sub(
             rf'\b{re.escape(target_word)}\b',
             f'**{target_word}**',
             original_sentence,
-            count=1
+            count=1,
+            flags=re.IGNORECASE
         )
 
-        # Get up to 5 similar words (potential synonyms)
+        # Получаем синонимы
         try:
-            similar = self.analyzer.get_similar_words(target_word, topn=5, pos=target_pos)
-        except ValueError:
+            similar = self.analyzer.get_similar_words(
+                target_word,
+                topn=5,
+                pos=target_pos,
+            )
+        except Exception as e:
+            print(f"⚠ Ошибка поиска синонимов: {e}")
             similar = []
-        # Ensure we don't include the target word itself
-        similar = [w for w in similar if w != target_word]
 
-        # If no similar words, fallback to other words from the same sentence
+        # Убираем само целевое слово и дубли
+        unique_similar: List[str] = []
+        for candidate in similar:
+            if not isinstance(candidate, str):
+                continue
+            normalized = candidate.strip()
+            if (
+                normalized
+                and normalized.lower() != target_word.lower()
+                and normalized.lower() not in {w.lower() for w in unique_similar}
+            ):
+                unique_similar.append(normalized)
+        similar = unique_similar
+
+        # Fallback если нет синонимов
         if not similar:
-            similar = [w for w in words if w != target_word and len(w) > 4][:5]
+            similar = [
+                w for w in words
+                if w != target_word and len(w) >= self.MIN_WORD_LENGTH
+            ][:5]
 
-        # Select correct answer (most similar) and up to 2 distractors
-        correct = similar[0] if similar else target_word
-        distractors = similar[1:3] if len(similar) > 1 else []
+        if not similar:
+            raise ValueError("Не найдено слов для вариантов ответа")
 
-        # Build and shuffle the word bank
-        self.word_bank = [correct] + distractors
-        random.shuffle(self.word_bank)
+        # Формируем варианты ответа:
+        # correct = лучший найденный синоним, остальные - дистракторы
+        correct = similar[0]
+        distractors = similar[1:4]
 
-        # Store the generated exercise
+        # При нехватке вариантов добавляем другие слова из текущего предложения
+        if len(distractors) < 2:
+            extra_candidates = [
+                w for w in words
+                if w.lower() not in {target_word.lower(), correct.lower()}
+                and len(w) >= self.MIN_WORD_LENGTH
+            ]
+            for w in extra_candidates:
+                if w.lower() not in {d.lower() for d in distractors}:
+                    distractors.append(w)
+                if len(distractors) >= 3:
+                    break
+
+        options = [correct] + distractors[:3]
+        # Стараемся оставить хотя бы 3 уникальных варианта
+        deduplicated_options: List[str] = []
+        for option in options:
+            if option.lower() not in {o.lower() for o in deduplicated_options}:
+                deduplicated_options.append(option)
+
+        if len(deduplicated_options) < 2:
+            raise ValueError("Недостаточно вариантов для упражнения на синонимы")
+
+        random.shuffle(deduplicated_options)
+
+        self.word_bank = deduplicated_options
+        self.options = deduplicated_options
+
         self.question = highlighted_sentence
         self.answer = correct
 

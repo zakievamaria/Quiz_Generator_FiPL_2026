@@ -24,4 +24,3 @@ for sent in sentences_metadata:
     print(f"  Words: {sent['words']}")
     print(f"  Lemmas: {sent['tagged_lemmas']}")
     print(f"  Word count: {sent['word_count']}\n")
-

@@ -8,33 +8,37 @@ class MatchingExercise(BaseExercise):
     """Matching Exercise - сопоставить слова/фразы с определениями"""
 
     def __init__(self, exercise_id: str):
-        super().__init__(exercise_id, "Соотнесите слова из левого столбца с их определениями из правого столбца")
+        desc = (
+            "Соотнесите слова из левого столбца с их определениями "
+            "из правого столбца"
+        )
+        super().__init__(exercise_id, desc)
         self.pairs: Dict[str, str] = {}
         self.left_column: List[str] = []
         self.right_column: List[str] = []
 
     def generate(self, context: Dict[str, Any]) -> None:
         """Генерирует упражнение на соответствие"""
-        # Получаем предложение и слова из контекста
-        sentence = context.get('sentence', '')
         words = context.get('words', [])
-        lemmas = context.get('lemmas', [])
 
         if len(words) < 4:
-            # Если предложение слишком короткое, используем комбинацию из нескольких предложений
+            # Короткое предложение — берём слова из всего корпуса
             all_words = context.get('all_words', [])
             if len(all_words) >= 6:
-                # Берем случайные слова из всего корпуса
-                selected_words = random.sample(all_words, min(6, len(all_words)))
+                n = min(6, len(all_words))
+                selected_words = random.sample(all_words, n)
                 self._create_pairs_from_words(selected_words)
             else:
-                raise ValueError("Недостаточно слов для создания упражнения на соответствие")
+                msg = "Недостаточно слов для упражнения на соответствие"
+                raise ValueError(msg)
         else:
             # Используем слова из текущего предложения
             self._create_pairs_from_words(words)
 
         # Формируем вопрос
-        self.question = "Сопоставьте элементы из левого столбца с соответствующими элементами из правого:"
+        self.question = (
+            "Сопоставьте элементы из левого столбца с элементами из правого:"
+        )
 
         # Перемешиваем правый столбец для усложнения задания
         random.shuffle(self.right_column)

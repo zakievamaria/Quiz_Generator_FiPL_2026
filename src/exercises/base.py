@@ -1,5 +1,10 @@
+# pylint: disable=unnecessary pass, unused-argument
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
+
+# Subclasses use str, list, or other shapes for question/answer (e.g. True/False).
+QuestionT = Any
+AnswerT = Any
 
 
 class BaseExercise(ABC):
@@ -8,8 +13,8 @@ class BaseExercise(ABC):
     def __init__(self, exercise_id: str, description: str = ""):
         self.id = exercise_id
         self.description = description
-        self.question = ""
-        self.answer = ""
+        self.question: QuestionT = ""
+        self.answer: AnswerT = ""
         self.options: List[Any] = []
 
     @abstractmethod

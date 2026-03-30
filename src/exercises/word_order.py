@@ -8,7 +8,8 @@ class WordOrderExercise(BaseExercise):
     """Упражнение на восстановление порядка слов"""
 
     def __init__(self, exercise_id: str):
-        super().__init__(exercise_id, "Восстановите правильный порядок слов в предложении")
+        desc = "Восстановите правильный порядок слов в предложении"
+        super().__init__(exercise_id, desc)
 
     def generate(self, context: Dict[str, Any]) -> None:
         """Генерирует упражнение из предложения"""
