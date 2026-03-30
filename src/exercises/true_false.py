@@ -8,7 +8,6 @@ from typing import Any, Dict, List, Optional
 import spacy
 from spacy.matcher import Matcher
 from spacy.tokens import Doc, Span
-from transformers import PreTrainedModel, PreTrainedTokenizer
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 from src.exercises.base import BaseExercise
@@ -53,7 +52,7 @@ replacements = {
 }
 
 
-def find_markers_in_doc(doc: spacy.tokens.Doc) -> List[Dict[str, Any]]:
+def find_markers_in_doc(doc: Doc) -> List[Dict[str, Any]]:
     """
     Find pattern‑based fragments (quantifiers, temporal markers etc.) in a spaCy Doc.
 
@@ -99,21 +98,15 @@ def distort_span(sent_span: spacy.tokens.Span, marker: Dict[str, Any]) -> str:
     return f"{left.strip()} {new_word} {right.strip()}".strip()
 
 
-def paraphrase(model: PreTrainedModel, tokenizer: PreTrainedTokenizer, sentence: str) -> str:
-    """
-    Generate paraphrased versions of a French sentence using a T5‑style model.
+def paraphrase(model: Any, tokenizer: Any, sentence: str) -> str:
+    input_text = f"Reformule la phrase suivante en français sans ajouter ni supprimer d'information : {sentence}"
 
-    Args:
-        model (AutoModelForSeq2SeqLM): Transformer model for paraphrasing.
-        tokenizer (AutoTokenizer): Tokenizer compatible with the model.
-        sentence (str): French sentence to paraphrase.
-
-    Returns:
-        str: Paraphrased sentence.
-    """
-    input_text = f"Reformule la phrase suivante en français sans ajouter ni supprimer \
-    d'information : {sentence}"
-    inputs = tokenizer(input_text, return_tensors="pt", truncation=True, max_length=128)
+    inputs = cast(Dict[str, Any], tokenizer(
+        input_text,
+        return_tensors="pt",
+        truncation=True,
+        max_length=128
+    ))
 
     outputs = model.generate(
         **inputs,
@@ -164,7 +157,7 @@ class TrueFalseExercise(BaseExercise):
 
         sentences = [sent for sent in doc.sents if sent.text.strip()]
         if not sentences:
-            sentences = [doc]
+            sentences = [doc[:]]
 
         self.statements = self._generate_statements(sentences, all_markers)
 
