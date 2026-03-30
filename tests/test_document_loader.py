@@ -1,17 +1,14 @@
-import os
 import pytest
 
 from src.core.document_loader import DocumentLoader
 
 
-# Helpers
 def create_txt_file(tmp_path, name="test.txt", content="bonjour"):
     file_path = tmp_path / name
     file_path.write_text(content, encoding="utf-8")
     return str(file_path)
 
 
-# Validation tests
 def test_fails_with_no_files():
     with pytest.raises(ValueError):
         DocumentLoader([])
@@ -39,7 +36,6 @@ def test_fails_on_unsupported_extension(tmp_path):
         DocumentLoader([str(file_path)])
 
 
-# set_files behavior
 def test_set_files_replaces_and_validates(tmp_path):
     file1 = create_txt_file(tmp_path, "a.txt")
     loader = DocumentLoader([file1])
@@ -50,7 +46,6 @@ def test_set_files_replaces_and_validates(tmp_path):
     assert loader.file_paths == [file2]
 
 
-# TXT loading
 def test_load_txt_file(tmp_path):
     content = "Bonjour tout le monde"
     file_path = create_txt_file(tmp_path, "test.txt", content)
@@ -67,7 +62,6 @@ def test_load_txt_file(tmp_path):
     assert doc["extension"] == ".txt"
 
 
-# Multiple files
 def test_load_multiple_files(tmp_path):
     file1 = create_txt_file(tmp_path, "a.txt", "A")
     file2 = create_txt_file(tmp_path, "b.txt", "BB")
@@ -82,10 +76,9 @@ def test_load_multiple_files(tmp_path):
     assert "BB" in contents
 
 
-# DOCX behavior
 def test_docx_requires_dependency(tmp_path, monkeypatch):
     file_path = tmp_path / "test.docx"
-    file_path.write_text("fake")  # content irrelevant for this test
+    file_path.write_text("fake")
 
     loader = DocumentLoader([str(file_path)])
 
@@ -99,7 +92,6 @@ def test_docx_requires_dependency(tmp_path, monkeypatch):
         loader.load()
 
 
-# Edge cases
 def test_empty_txt_file(tmp_path):
     file_path = create_txt_file(tmp_path, "empty.txt", "")
 

@@ -17,6 +17,7 @@ ExerciseImpl = Union[
     Type[FillBlanksExercise],
     Type[SynonymsExercise],
     Type[MatchingExercise],
+    Type[TrueFalseExercise],
 ]
 
 

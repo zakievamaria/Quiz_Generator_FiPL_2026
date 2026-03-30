@@ -153,12 +153,13 @@ ignore_missing_imports = true
 fail-under = 10.0
 jobs = 1
 py-version = "3.11"
-ignore = ["tests"]
-ignore-patterns = ["^tests/.*"]
 
 [tool.pylint.format]
 max-line-length = 100
 exclude = "tests/"
+
+[tool.pylint.MASTER]
+ignore=["tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

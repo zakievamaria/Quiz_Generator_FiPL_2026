@@ -76,4 +76,4 @@ def test_to_dict():
 
 def test_cannot_instantiate_abstract_class():
     with pytest.raises(TypeError):
-        BaseExercise("ex1")  # abstract class should not be instantiable
+        BaseExercise("ex1")
