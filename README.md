@@ -93,19 +93,19 @@ After checking, the order is considered correct only if all words are in the rig
 4. **Fill blanks**
 
 A sentence with numbered gaps appears, e.g., *“1. Je ___ les chats. 2. Il ___ à la maison.”*
-Type the missing words into the text fields.
+Choose the missing words from the drop‑down menus in the text fields.
 During verification, each field is highlighted green (correct) or red (incorrect). An overall result is shown.
 
 5. **Multiple Choice**
 
-You are given a question, often about synonyms or antonyms, with several options. For example:
+You are given a context (a sentence) with an underlined word. Choose the right synonym to underlined word from a list. For example:
 
-*Find the synonym of “heureux”:
-a) triste
-b) content
-c) fatigué*
+"*L’algorithme a atteint une convergence* <u>rapide</u> *sur l’ensemble d’entraînement.
+<br>table
+<br>fenêtre
+<br>véloce*"
 
-Select answer. After checking, the correct option is highlighted green; the user’s choice is green if correct, otherwise red.
+Select answer. After checking, the correct option is highlighted green, otherwise red.
 _____
 * **Unlimited attempts** – you can check your answers as many times as you like. Each time you press «Посмотреть ответ», the form is re‑evaluated and feedback is updated.
 ______
