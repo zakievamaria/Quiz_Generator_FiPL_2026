@@ -32,7 +32,7 @@ def test_initialization(generator):
     assert "word_order" in generator.exercise_types
 
 
-@patch("src.exercise_generator.DocumentLoader")
+@patch("src.generators.exercise_generator.DocumentLoader")
 def test_load_texts_success(mock_loader_cls, generator):
     mock_loader = MagicMock()
     mock_loader.load.return_value = [
@@ -47,7 +47,7 @@ def test_load_texts_success(mock_loader_cls, generator):
     mock_process.assert_called_once()
 
 
-@patch("src.exercise_generator.DocumentLoader")
+@patch("src.generators.exercise_generator.DocumentLoader")
 def test_load_texts_failure(mock_loader_cls, generator):
     mock_loader = MagicMock()
     mock_loader.load.side_effect = Exception("fail")
@@ -78,7 +78,6 @@ def test_generate_exercises_success(generator, mock_sentences):
     generator.processed_sentences = mock_sentences
     generator.all_words = ["Bonjour", "le", "monde"]
 
-    # Mock exercise class
     mock_exercise = MagicMock()
     mock_exercise.generate.return_value = None
 
@@ -114,7 +113,6 @@ def test_generate_exercises_handles_exceptions(generator, mock_sentences):
 
     exercises = generator.generate_exercises(num_per_type=1)
 
-    # Should skip failed exercises
     assert exercises == []
 
 
